@@ -1,0 +1,1 @@
+arduino-cli.exe compile -b arduino:avr:uno
