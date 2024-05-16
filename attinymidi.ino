@@ -18,7 +18,19 @@ void setup() {
     initializePin(AUXRING);
     initializePin(MAINSWITCH);
 }
-void loop() {}
+
+void loop() {
+    if (!midiSerial.available()) {
+        return;
+    }
+    uint8_t b = midiSerial.read();
+    MidiParseControlChange delegate = &onControlChange;
+    MidiParse(b, delegate);
+}
+
+void onControlChange(uint8_t channel, uint8_t data0, uint8_t data1) {
+
+}
 
 void initializePin(uint8_t pin) {
     pinMode (pin, OUTPUT);
