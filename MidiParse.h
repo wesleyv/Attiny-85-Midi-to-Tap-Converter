@@ -7,9 +7,20 @@ extern "C" {
 
 #import <stdint.h>
 
-typedef void (*MidiParseControlChange)(uint8_t channel, uint8_t data0, uint8_t data1);
 
-void MidiParse(uint8_t b, MidiParseControlChange delegate); // this is a function prototype. It describes the name of the function, the argument, and the return type. But does not contain implementation
+typedef enum {
+	MidiParserStateInitial
+} MidiParserState;
+
+typedef void (*MidiParserOnControlChange)(uint8_t channel, uint8_t data0, uint8_t data1);
+
+typedef struct {
+	MidiParserState state;
+	MidiParserOnControlChange delegate;
+} MidiParser;
+
+MidiParser MidiParserInit(MidiParserOnControlChange delegate);
+void MidiParserParse(MidiParser *self, uint8_t b);
 
 #ifdef __cplusplus
 }

@@ -13,6 +13,7 @@
 #define MIDISTATUS 11
 
 SoftwareSerial midiSerial(MIDIRX, -1);
+MidiParser parser;
 
 void onControlChange(uint8_t channel, uint8_t data0, uint8_t data1) {
 
@@ -29,6 +30,9 @@ void MainSetup() {
     initializePin(AUXTIP);
     initializePin(AUXRING);
     initializePin(MAINSWITCH);
+
+    parser = MidiParserInit(&onControlChange);
+
 }
 
 void MainLoop() {
@@ -36,6 +40,6 @@ void MainLoop() {
         return;
     }
     uint8_t b = midiSerial.read();
-    MidiParseControlChange delegate = &onControlChange;
-    MidiParse(b, delegate);
+
+    MidiParserParse(&parser, b);
 }

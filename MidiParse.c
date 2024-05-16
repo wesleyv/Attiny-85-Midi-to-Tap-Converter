@@ -1,4 +1,11 @@
 #import "MidiParse.h"
 
-void MidiParse(uint8_t b, MidiParseControlChange delegate) {
+MidiParser MidiParserInit(MidiParserOnControlChange delegate) {
+    MidiParser parser;
+    parser.state = MidiParserStateInitial;
+    parser.delegate = delegate;
+    return parser;
+}
+void MidiParserParse(MidiParser *self, uint8_t b) {
+
 }
