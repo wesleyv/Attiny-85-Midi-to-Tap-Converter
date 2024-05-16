@@ -7,16 +7,24 @@ extern "C" {
 
 #import <stdint.h>
 
-
+// private
 typedef enum {
-	MidiParserStateInitial
+    MidiParserStateExpectingStatusByte,
+    MidiParserStateControlMessage1,
+    MidiParserStateControlMessage2,
+    MidiParserStateIgnoring1ByteMessage,
+    MidiParserStateIgnoring2ByteMessage1,
+    MidiParserStateIgnoring2ByteMessage2,
 } MidiParserState;
 
 typedef void (*MidiParserOnControlChange)(uint8_t channel, uint8_t data0, uint8_t data1);
 
+// private
 typedef struct {
-	MidiParserState state;
-	MidiParserOnControlChange delegate;
+    MidiParserState state;
+    MidiParserOnControlChange delegate;
+    uint8_t channel;
+    uint8_t data0;
 } MidiParser;
 
 MidiParser MidiParserInit(MidiParserOnControlChange delegate);
