@@ -54,7 +54,6 @@ void loop() {
     byte StatusBit = incomingByte & 0b10000000;
     byte StatusTypeBits = incomingByte & 0b11110000;
     byte ChannelBits = incomingByte & 0b00001111;
-    //    Serial.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
     //    Serial.println("ParseMidi Called");
     Serial.println("incoming Byte = ");
     printBin(incomingByte);
