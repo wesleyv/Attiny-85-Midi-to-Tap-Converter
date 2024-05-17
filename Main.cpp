@@ -12,6 +12,15 @@
 #define MAINSWITCH 0
 #define MIDISTATUS 11
 
+#define TRIGPULSE 10000
+
+//---
+uint32_t AuxTipMicros;
+uint32_t AUAuxRingMicros;
+uint32_t MainSwitchMicros;
+uint32_t MidiStatusMicros;
+//----
+
 SoftwareSerial midiSerial(MIDIRX, -1);
 MidiParser parser;
 
@@ -23,6 +32,7 @@ void initializePin(uint8_t pin) {
     pinMode(pin, OUTPUT);
     digitalWrite(pin, LOW);
 }
+
 
 void MainSetup() {
     midiSerial.begin(31250); // MIDI Baud rate
@@ -44,3 +54,4 @@ void MainLoop() {
 
     MidiParserParse(&parser, b);
 }
+
