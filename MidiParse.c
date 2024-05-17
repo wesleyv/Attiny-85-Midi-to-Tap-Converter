@@ -2,29 +2,15 @@
 #import <stdbool.h>
 #define MIDICH 9
 
-//uint8_t MidiParserGetChannel(uint8_t b) {
-//uint8_t ByteChannel = b & 0b00001111;
-//}
-
-
-//uint8_t MidiParserGetStatusType(uint8_t b) {
-//uint8_t ByteStatus = b & 0b11110000;
-//}
-
-bool MidiParserStatusByteIsControlChangeByte(uint8_t b) {
-
+uint8_t MidiParserGetChannel(uint8_t b) {
+uint8_t ByteChannel = b & 0b00001111;
 }
+// I'm pretty sure I'm not doing this right - how do I return a uint_8 value?
 
-bool MidiParserStatusByteIsIgnored1DataByte(uint8_t b) {
 
-}
-
-bool MidiParserStatusByteIsIgnored2DataBytes(uint8_t b) {
-
-}
-
-bool ByteIsStatusByte(uint8_t b) {
-    if (b & 0b10000000 == 0b10000000){
+bool MidiParserStatusByteIsControlChangeByte(uint8_t b)
+{
+    if (b == 0b10110000){
         return true;
     }
     else {
@@ -32,7 +18,66 @@ bool ByteIsStatusByte(uint8_t b) {
     }
 }
 
-MidiParser MidiParserInit(MidiParserOnControlChange delegate) {
+bool MidiParserStatusCCByteIsOnDesiredChannel(uint8_t b)
+{
+    if (b & 0b00001111 == (MIDICH - 1)){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool MidiParserStatusByteIsSysexByte(uint8_t b)
+{
+    if (b & 0b11110000  == 0b11110000){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+// checks if incoming byte is Program change or Channel Aftertouch, each of which has 1 data byte which must be ignored
+bool MidiParserStatusByteIsIgnored1DataByte(uint8_t b)
+{
+    if (b & 0b11110000 == 0b11000000 || b & 0b11110000 == 0b11010000)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+// checks if incoming byte is Note off, Note on, Poly Aftertouch, or Pitch Bend message, each of which has 2 data bytes which must be ignored
+bool MidiParserStatusByteIsIgnored2DataBytes(uint8_t b)
+{
+    if (b & 0b11110000 == 0b10000000 || b & 0b11110000 == 0b10010000 || b & 0b11110000 == 0b10100000 || b & 0b11110000 == 0b11100000)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool ByteIsStatusByte(uint8_t b)
+{
+    if (b & 0b10000000 == 0b10000000)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+MidiParser MidiParserInit(MidiParserOnControlChange delegate)
+{
     MidiParser parser;
     parser.state = MidiParserStateExpectingStatusByte;
     parser.delegate = delegate;
@@ -42,28 +87,6 @@ MidiParser MidiParserInit(MidiParserOnControlChange delegate) {
 }
 
 void MidiParserParse(MidiParser *self, uint8_t b) {
-if (ByteIsStatusByte(b)){
-    uint8_t ByteStatus = b & 0b11110000;
-    if (ByteStatus == 0b10000000 || ByteStatus == 0b10010000 || ByteStatus == 0b10100000 || ByteStatus == 0b11100000){ 
-        //checks if incoming byte is Note off, Note on, Poly Aftertouch, or Pitch Bend message, each of which has 2 data bytes which must be ignored
-    self->state = MidiParserStateIgnoring2ByteMessage1;
-    }
-    else if (ByteStatus == 0b11000000 || ByteStatus == 0b11010000){
-    //checks if incoming byte is Program change or Channel Aftertouch, each of which has 1 data byte which must be ignored
-    self->state = MidiParserStateIgnoring1ByteMessage;
-    }
-    else if (ByteStatus == 0b11110000){ //Sysex
-    // send it down the sysex tubes. Mapped out in my notes. Let's worry about it later
-    }
-    else if (ByteStatus == 0b10110000){ // checks if control change
-        if (b & 0b00001111 == (MIDICH - 1)){ // checks if control change is on desired channel. -1 accounts for 0 indexing
-        self->state = MidiParserStateControlMessage1;
-        }
-        else {
-        self->state = MidiParserStateIgnoring2ByteMessage1;
-        }
-    }
-}
     if (self->state == MidiParserStateExpectingStatusByte) {
         if (MidiParserStatusByteIsControlChangeByte(b)) {
             self->channel = MidiParserGetChannel(b);
