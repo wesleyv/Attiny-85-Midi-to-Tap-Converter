@@ -1,12 +1,23 @@
 #import "MidiParse.h"
 #import <stdbool.h>
 #define MIDICH 9
+bool SysExIgnore = false;
 
 uint8_t MidiParserGetChannel(uint8_t b) {
-uint8_t ByteChannel = b & 0b00001111;
+return (b & 0b00001111) - 1;
 }
 // I'm pretty sure I'm not doing this right - how do I return a uint_8 value?
 
+
+//bool MidiParserStatusCCByteIsOnDesiredChannel(uint8_t b)
+//{
+//    if (b & 0b00001111 == (MIDICH - 1)){
+//        return true;
+//    }
+//    else {
+//        return false;
+//    }
+//}
 
 bool MidiParserStatusByteIsControlChangeByte(uint8_t b)
 {
@@ -18,9 +29,9 @@ bool MidiParserStatusByteIsControlChangeByte(uint8_t b)
     }
 }
 
-bool MidiParserStatusCCByteIsOnDesiredChannel(uint8_t b)
-{
-    if (b & 0b00001111 == (MIDICH - 1)){
+
+bool MidiParserStatusByteisKnownSkippableByte(uint8_t){ // rules out multiple undefined + tune request + all system real time messages
+        if (b == 0b11110100 || 0b11110101 || 0b11110110 || 0b11111000 || 0b11111001 || 0b11111010 || 0b11111011 || 0b11111100 || 0b11111101 || 0b11111110 || 0b11111111){
         return true;
     }
     else {
@@ -38,10 +49,10 @@ bool MidiParserStatusByteIsSysexByte(uint8_t b)
     }
 }
 
-// checks if incoming byte is Program change or Channel Aftertouch, each of which has 1 data byte which must be ignored
+// checks if incoming byte is Program change or Channel Aftertouch, or sysex time code quarter frame or Sysex Song select - each of which has 1 data byte which must be ignored
 bool MidiParserStatusByteIsIgnored1DataByte(uint8_t b)
 {
-    if (b & 0b11110000 == 0b11000000 || b & 0b11110000 == 0b11010000)
+    if (b & 0b11110000 == 0b11000000 || b & 0b11110000 == 0b11010000 || b == 0b11010001 || b == 0b11010011)
     {
         return true;
     }
@@ -51,10 +62,10 @@ bool MidiParserStatusByteIsIgnored1DataByte(uint8_t b)
     }
 }
 
-// checks if incoming byte is Note off, Note on, Poly Aftertouch, or Pitch Bend message, each of which has 2 data bytes which must be ignored
+// checks if incoming byte is Note off, Note on, Poly Aftertouch, or Pitch Bend message, or Sysex Song Position Pointer each of which has 2 data bytes which must be ignored
 bool MidiParserStatusByteIsIgnored2DataBytes(uint8_t b)
 {
-    if (b & 0b11110000 == 0b10000000 || b & 0b11110000 == 0b10010000 || b & 0b11110000 == 0b10100000 || b & 0b11110000 == 0b11100000)
+    if (b & 0b11110000 == 0b10000000 || b & 0b11110000 == 0b10010000 || b & 0b11110000 == 0b10100000 || b & 0b11110000 == 0b11100000 || b == 0b11110010)
     {
         return true;
     }
