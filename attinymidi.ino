@@ -1,5 +1,5 @@
-#import "Main.h"
-#import <Arduino.h>
+#include "Main.h"
+#include <Arduino.h>
 
 void setup() {
     MainSetup();

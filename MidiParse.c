@@ -1,7 +1,8 @@
-#import "MidiParse.h"
-#import <stdbool.h>
 
-bool SysExIgnore = false;
+#include "MidiParse.h"
+#include <stdbool.h>
+// we can delete this after serial print is removed:
+#include <Arduino.h>
 
 uint8_t MidiParserGetChannel(uint8_t b)
 {
@@ -10,118 +11,153 @@ uint8_t MidiParserGetChannel(uint8_t b)
 
 bool MidiParserStatusByteIsControlChangeByte(uint8_t b)
 {
-    if (b == 0b10110000)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return b == 0b10110000;
 }
 
-bool MidiParserStatusByteisKnownSkippableByte(uint8_t b)
-{ // rules out multiple undefined + tune request + all system real time messages
-    if (b == 0b11110100 || b == 0b11110101 || b == 0b11110110 || b == 0b11111000 || b == 0b11111001 || b == 0b11111010 || b == 0b11111011 || b == 0b11111100 || b == 0b11111101 || b == 0b11111110 || b == 0b11111111)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+// list of values for tune request and undefined skippable sysex:
+bool MidiParserStatusByteIsSkippableByte(uint8_t b)
+{
+    return b == 0b11110100 || b == 0b11110101 || b == 0b11110110;
+}
+
+// rules out multiple undefined + tune request + all system real time messages
+bool MidiParserStatusByteisSystemRealTime(uint8_t b)
+{
+    return b >= 0xF8 && b <= 0xFF;
 }
 
 // checks if incoming byte is Program change or Channel Aftertouch, or sysex time code quarter frame or Sysex Song select - each of which has 1 data byte which must be ignored
 bool MidiParserStatusByteIsIgnored1DataByte(uint8_t b)
 {
-    if (b & 0b11110000 == 0b11000000 || b & 0b11110000 == 0b11010000 || b == 0b11010001 || b == 0b11010011)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return (b & 0b11110000) == 0b11000000 || (b & 0b11110000) == 0b11010000 || b == 0b11010001 || b == 0b11010011;
 }
 
 // checks if incoming byte is Note off, Note on, Poly Aftertouch, or Pitch Bend message, or Sysex Song Position Pointer each of which has 2 data bytes which must be ignored
 bool MidiParserStatusByteIsIgnored2DataBytes(uint8_t b)
 {
-    if (b & 0b11110000 == 0b10000000 || b & 0b11110000 == 0b10010000 || b & 0b11110000 == 0b10100000 || b & 0b11110000 == 0b11100000 || b == 0b11110010)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return (b & 0b11110000) == 0b10000000 || (b & 0b11110000) == 0b10010000 || (b & 0b11110000) == 0b10100000 || (b & 0b11110000) == 0b11100000 || b == 0b11110010;
 }
 
-MidiParser MidiParserInit(MidiParserOnControlChange delegate)
+MidiParser MidiParserInit(MidiParserOnControlChange delegate, MidiParserOnError errorDelegate)
 {
     MidiParser parser;
     parser.state = MidiParserStateExpectingStatusByte;
     parser.delegate = delegate;
+    parser.errorDelegate = errorDelegate;
     parser.channel = 0;
     parser.data0 = 0;
     return parser;
 }
 
+bool MidiParserIsEndSysex(uint8_t b)
+{
+    return b == 0b11110111;
+}
+
+bool MidiParserIsBeginSysex(uint8_t b)
+{
+    return b == 0b11110000;
+}
+
 void MidiParserParse(MidiParser *self, uint8_t b)
 {
-    if (b == 0b11110000)
+    if (self->state == MidiParserStateExpectingStatusByte)
     {
-        bool SysExIgnore = true;
+        if (MidiParserStatusByteIsControlChangeByte(b))
+        {
+            // Serial.println("Was expecting Status - received CC byte ");
+            self->channel = MidiParserGetChannel(b);
+            self->state = MidiParserStateControlMessage1;
+        }
+        else if (MidiParserStatusByteIsIgnored1DataByte(b))
+        {
+            self->state = MidiParserStateIgnoring1ByteMessage;
+        }
+        else if (MidiParserStatusByteIsIgnored2DataBytes(b))
+        {
+            self->state = MidiParserStateIgnoring2ByteMessage1;
+        }
+        else if (MidiParserIsBeginSysex(b))
+        {
+            self->state = MidiParserStateSysexIgnore;
+        }
+        else if (MidiParserStatusByteIsSkippableByte(b))
+        {
+            // No Op
+        }
+        else if (MidiParserStatusByteisSystemRealTime(b))
+        {
+            // No Op
+        }
+        else
+        {
+            self->errorDelegate(self->state, b);
+        }
     }
-    else if (b == 0b11110111)
-    {
-        bool SysExIgnore = false;
-    }
-    ///----
-    if (SysExIgnore == true || MidiParserStatusByteisKnownSkippableByte(b))
-    {
-        return;
-    }
-    else if (MidiParserStatusByteIsControlChangeByte(b))
-    {
-        self->channel = MidiParserGetChannel(b);
-        self->state = MidiParserStateControlMessage1;
-    }
-    else if (MidiParserStatusByteIsIgnored1DataByte(b))
-    {
-        self->state = MidiParserStateIgnoring1ByteMessage;
-    }
-    else if (MidiParserStatusByteIsIgnored2DataBytes(b))
-    {
-        self->state = MidiParserStateIgnoring2ByteMessage1;
-    }
-    ///---
     else if (self->state == MidiParserStateControlMessage1)
     {
-        self->data0 = b;
-        self->state = MidiParserStateControlMessage2;
+        if (MidiParserStatusByteisSystemRealTime(b))
+        {
+            // No Op
+        }
+        else
+        {
+            self->data0 = b;
+            self->state = MidiParserStateControlMessage2;
+        }
     }
     else if (self->state == MidiParserStateControlMessage2)
     {
-        self->delegate(self->channel, self->data0, b);
-        self->channel = 0;
-        self->data0 = 0;
-    //    self->state = MidiParserStateExpectingStatusByte;
+        if (MidiParserStatusByteisSystemRealTime(b))
+        {
+            // No Op
+        }
+        else
+        {
+            self->delegate(self->channel, self->data0, b);
+            self->channel = 0;
+            self->data0 = 0;
+            self->state = MidiParserStateExpectingStatusByte;
+        }
     }
-    ///---
     else if (self->state == MidiParserStateIgnoring1ByteMessage)
     {
-        //    self->state = MidiParserStateExpectingStatusByte;
-        return;
+        if (MidiParserStatusByteisSystemRealTime(b))
+        {
+            // No Op
+        }
+        else
+        {
+            self->state = MidiParserStateExpectingStatusByte;
+        }
     }
     else if (self->state == MidiParserStateIgnoring2ByteMessage1)
     {
-        self->state = MidiParserStateIgnoring2ByteMessage2;
+        if (MidiParserStatusByteisSystemRealTime(b))
+        {
+            // No Op
+        }
+        else
+        {
+            self->state = MidiParserStateIgnoring2ByteMessage2;
+        }
     }
     else if (self->state == MidiParserStateIgnoring2ByteMessage2)
     {
-        //    self->state = MidiParserStateExpectingStatusByte;
-        return;
+        if (MidiParserStatusByteisSystemRealTime(b))
+        {
+            // No Op
+        }
+        else
+        {
+            self->state = MidiParserStateExpectingStatusByte;
+        }
+    }
+    else if (self->state == MidiParserStateSysexIgnore)
+    {
+        if (MidiParserIsEndSysex(b))
+        {
+            self->state = MidiParserStateExpectingStatusByte;
+        }
     }
 }
