@@ -6,12 +6,12 @@
 
 uint8_t MidiParserGetChannel(uint8_t b)
 {
-    return (b & 0b00001111) - 1;
+    return (b & 0b00001111) + 1;
 }
 
 bool MidiParserStatusByteIsControlChangeByte(uint8_t b)
 {
-    return b == 0b10110000;
+    return (b & 0b11110000) == 0b10110000;
 }
 
 // list of values for tune request and undefined skippable sysex:
@@ -29,7 +29,7 @@ bool MidiParserStatusByteisSystemRealTime(uint8_t b)
 // checks if incoming byte is Program change or Channel Aftertouch, or sysex time code quarter frame or Sysex Song select - each of which has 1 data byte which must be ignored
 bool MidiParserStatusByteIsIgnored1DataByte(uint8_t b)
 {
-    return (b & 0b11110000) == 0b11000000 || (b & 0b11110000) == 0b11010000 || b == 0b11010001 || b == 0b11010011;
+    return (b & 0b11110000) == 0b11000000 || (b & 0b11110000) == 0b11010000 || b == 0b11110001 || b == 0b11110011;
 }
 
 // checks if incoming byte is Note off, Note on, Poly Aftertouch, or Pitch Bend message, or Sysex Song Position Pointer each of which has 2 data bytes which must be ignored
@@ -65,9 +65,10 @@ void MidiParserParse(MidiParser *self, uint8_t b)
     {
         if (MidiParserStatusByteIsControlChangeByte(b))
         {
-            // Serial.println("Was expecting Status - received CC byte ");
             self->channel = MidiParserGetChannel(b);
             self->state = MidiParserStateControlMessage1;
+            // Serial.println("Was expecting Status - received CC byte on channel: ");
+            // Serial.print(MidiParserGetChannel(b));
         }
         else if (MidiParserStatusByteIsIgnored1DataByte(b))
         {
@@ -103,6 +104,7 @@ void MidiParserParse(MidiParser *self, uint8_t b)
         else
         {
             self->data0 = b;
+            // Serial.println("Byte Recorded to data0 - state set to Expecting byte 2");
             self->state = MidiParserStateControlMessage2;
         }
     }
@@ -114,6 +116,7 @@ void MidiParserParse(MidiParser *self, uint8_t b)
         }
         else
         {
+            // Serial.println("Byte Recorded to data1");
             self->delegate(self->channel, self->data0, b);
             self->channel = 0;
             self->data0 = 0;
