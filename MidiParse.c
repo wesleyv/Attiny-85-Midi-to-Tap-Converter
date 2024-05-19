@@ -107,7 +107,7 @@ void MidiParserParse(MidiParser *self, uint8_t b)
         self->delegate(self->channel, self->data0, b);
         self->channel = 0;
         self->data0 = 0;
-        self->state = MidiParserStateExpectingStatusByte;
+    //    self->state = MidiParserStateExpectingStatusByte;
     }
     ///---
     else if (self->state == MidiParserStateIgnoring1ByteMessage)
