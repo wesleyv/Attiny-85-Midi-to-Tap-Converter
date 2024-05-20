@@ -12,7 +12,7 @@
 #define AUXTIP 4
 #define AUXRING 3
 #define MAINSWITCH 0
-#define MIDISTATUS 11 // 11 for teensy, 1 for tiny
+#define MIDISTATUS 1 // 11 for teensy, 1 for tiny
 
 #define AUXTIPCC 88
 #define AUXRINGCC 89
@@ -34,21 +34,21 @@ void onControlChange(uint8_t channel, uint8_t data0, uint8_t data1)
     {
         PinOn(AUXTIP, 1, now);
         PinOn(MIDISTATUS, 0, now);
-        Serial.println("=-=-=-=-=Aux Tip Pulsed-=-=-=-=-");
+        // Serial.println("=-=-=-=-=Aux Tip Pulsed-=-=-=-=-");
         // Serial.print(now);
     }
     else if (data0 == AUXRINGCC && data1 == 0)
     {
         PinOn(AUXRING, 2, now);
         PinOn(MIDISTATUS, 0, now);
-        Serial.println("-=-=-=-=-Aux Ring Pulsed-=-=-=-=");
+        // Serial.println("-=-=-=-=-Aux Ring Pulsed-=-=-=-=");
         // Serial.print(now);
     }
     else if (data0 == MAINSWITCHCC && data1 == 0)
     {
         PinOn(MAINSWITCH, 3, now);
         PinOn(MIDISTATUS, 0, now);
-        Serial.println("-=-=-=-=-=Main Switch Pulsed=-=-=-=--=-");
+        // Serial.println("-=-=-=-=-=Main Switch Pulsed=-=-=-=--=-");
         // Serial.print(now);
     }
 }
@@ -61,7 +61,7 @@ void printBin(uint8_t aByte)
 
 void onError(MidiParserState state, uint8_t b)
 {
-    Serial.print("!!!!!!!!!!!!!!!!!!!!Failed to parse byte: ");
+    // Serial.print("!!!!!!!!!!!!!!!!!!!!Failed to parse byte: ");
     // printBin(b);
     // Serial.print(" in state: ");
     // Serial.println(state);
@@ -92,8 +92,8 @@ void MainLoop()
         return;
     }
     uint8_t b = midiSerial.read();
-//    Serial.println("midi serial detected ");
-    printBin(b);
+    // Serial.println("midi serial detected ");
+    // printBin(b);
     Serial.println("");
     MidiParserParse(&parser, b);
 }

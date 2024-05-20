@@ -67,33 +67,33 @@ void MidiParserParse(MidiParser *self, uint8_t b)
         {
             self->channel = MidiParserGetChannel(b);
             self->state = MidiParserStateControlMessage1;
-            Serial.println("State is: MidiParserStateControlMessage1 ");
+            // Serial.println("State is: MidiParserStateControlMessage1 ");
         }
         else if (MidiParserStatusByteIsIgnored1DataByte(b))
         {
             self->state = MidiParserStateIgnoring1ByteMessage;
-            Serial.println("State is: MidiParserStateIgnoring1ByteMessage ");
+            // Serial.println("State is: MidiParserStateIgnoring1ByteMessage ");
         }
         else if (MidiParserStatusByteIsIgnored2DataBytes(b))
         {
             self->state = MidiParserStateIgnoring2ByteMessage1;
 
-            Serial.println("State is: MidiParserStateIgnoring2ByteMessage1 ");
+            // Serial.println("State is: MidiParserStateIgnoring2ByteMessage1 ");
         }
         else if (MidiParserIsBeginSysex(b))
         {
             self->state = MidiParserStateSysexIgnore;
-            Serial.println("Sysex Ignore START");
+            // Serial.println("Sysex Ignore START");
         }
         else if (MidiParserStatusByteIsSkippableByte(b))
         {
             // No Op
-            Serial.println("Byte Skipped ");
+            // Serial.println("Byte Skipped ");
         }
         else if (MidiParserStatusByteisSystemRealTime(b))
         {
             // No Op
-            Serial.println("Byte Skipped ");
+            // Serial.println("Byte Skipped ");
         }
         else
         {
@@ -105,7 +105,7 @@ void MidiParserParse(MidiParser *self, uint8_t b)
         if (MidiParserStatusByteisSystemRealTime(b))
         {
             // No Op
-            Serial.println("Byte is real time ");
+            // Serial.println("Byte is real time ");
         }
         else
         {
@@ -138,7 +138,7 @@ void MidiParserParse(MidiParser *self, uint8_t b)
         else
         {
             self->state = MidiParserStateExpectingStatusByte;
-            Serial.println("State is: MidiParserStateExpectingStatusByte ");
+            // Serial.println("State is: MidiParserStateExpectingStatusByte ");
         }
     }
     else if (self->state == MidiParserStateIgnoring2ByteMessage1)
@@ -150,7 +150,7 @@ void MidiParserParse(MidiParser *self, uint8_t b)
         else
         {
             self->state = MidiParserStateIgnoring2ByteMessage2;
-            Serial.println("State is: MidiParserStateIgnoring2ByteMessage2 ");
+            // Serial.println("State is: MidiParserStateIgnoring2ByteMessage2 ");
         }
     }
     else if (self->state == MidiParserStateIgnoring2ByteMessage2)
@@ -162,7 +162,7 @@ void MidiParserParse(MidiParser *self, uint8_t b)
         else
         {
             self->state = MidiParserStateExpectingStatusByte;
-            Serial.println("State is: MidiParserStateExpectingStatusByte ");
+            // Serial.println("State is: MidiParserStateExpectingStatusByte ");
         }
     }
     else if (self->state == MidiParserStateSysexIgnore)
@@ -170,7 +170,7 @@ void MidiParserParse(MidiParser *self, uint8_t b)
         if (MidiParserIsEndSysex(b))
         {
             self->state = MidiParserStateExpectingStatusByte;
-            Serial.println("Sysex Ignore STOP");
+            // Serial.println("Sysex Ignore STOP");
         }
     }
 }
