@@ -12,7 +12,7 @@
 #define AUXTIP 4
 #define AUXRING 3
 #define MAINSWITCH 0
-#define MIDISTATUS 11
+#define MIDISTATUS 11 // 11 for teensy, 1 for tiny
 
 #define AUXTIPCC 88
 #define AUXRINGCC 89
@@ -25,7 +25,7 @@ MidiParser parser;
 
 void onControlChange(uint8_t channel, uint8_t data0, uint8_t data1)
 {
-    Serial.println("Control Change Detected ");
+    // Serial.println("Control Change Detected ");
     if (channel != MIDICH)
     {
         return;
@@ -62,14 +62,15 @@ void printBin(uint8_t aByte)
 void onError(MidiParserState state, uint8_t b)
 {
     Serial.print("!!!!!!!!!!!!!!!!!!!!Failed to parse byte: ");
-    printBin(b);
-    Serial.print(" in state: ");
-    Serial.println(state);
+    // printBin(b);
+    // Serial.print(" in state: ");
+    // Serial.println(state);
+    // No Op
 }
 
 void MainSetup()
 {
-    Serial.print("Main Setup ");
+    // Serial.print("Main Setup ");
     midiSerial.begin(31250); // MIDI Baud rate
     initializePin(MIDISTATUS);
     initializePin(AUXTIP);
