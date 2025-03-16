@@ -1,0 +1,1 @@
+This project consists of code and a circuit for expanding the MIDI functionality of the BOSS RC-5 looper station specifically, however this unit can be used to add MIDI control of any button that is actuated by being shorted to ground. 
