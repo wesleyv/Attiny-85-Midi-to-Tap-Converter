@@ -35,15 +35,14 @@
 
 #define MIDIRX 2
 
-#define MIDICH 9 //Set this number to match the midi channel that your RC-5 pedal is configured to listen to.
-
-#define AUXTIP 4
-#define AUXRING 3
-#define MAINSWITCH 0
-#define MIDISTATUS 1 
+#define MIDICH 9
+#define AUXTIP 3
+#define AUXRING 0
+#define MAINSWITCH 4
+#define MIDISTATUS 1
 
 #define AUXTIPCC 88
-#define AUXRINGCC 89 // These variables determine which Midi CC numbers will cause a button press event, and on which button. The RC-5 already listens for 80 through 87, so 88-90 is the recommended choice.
+#define AUXRINGCC 89
 #define MAINSWITCHCC 90
 
 uint32_t now = 0;
@@ -53,7 +52,6 @@ MidiParser parser;
 
 void onControlChange(uint8_t channel, uint8_t data0, uint8_t data1)
 {
-    // Serial.println("Control Change Detected ");
     if (channel != MIDICH)
     {
         return;
@@ -62,43 +60,26 @@ void onControlChange(uint8_t channel, uint8_t data0, uint8_t data1)
     {
         PinOn(AUXTIP, 1, now);
         PinOn(MIDISTATUS, 0, now);
-        // Serial.println("=-=-=-=-=Aux Tip Pulsed-=-=-=-=-");
-        // Serial.print(now);
     }
     else if (data0 == AUXRINGCC && data1 == 0)
     {
         PinOn(AUXRING, 2, now);
         PinOn(MIDISTATUS, 0, now);
-        // Serial.println("-=-=-=-=-Aux Ring Pulsed-=-=-=-=");
-        // Serial.print(now);
     }
     else if (data0 == MAINSWITCHCC && data1 == 0)
     {
         PinOn(MAINSWITCH, 3, now);
         PinOn(MIDISTATUS, 0, now);
-        // Serial.println("-=-=-=-=-=Main Switch Pulsed=-=-=-=--=-");
-        // Serial.print(now);
     }
 }
 
-//void printBin(uint8_t aByte)
-//{
-//    for (int8_t aBit = 7; aBit >= 0; aBit--)
-//        Serial.write(bitRead(aByte, aBit) ? '1' : '0');
-//}
-
 void onError(MidiParserState state, uint8_t b)
 {
-    // Serial.print("!!!!!!!!!!!!!!!!!!!!Failed to parse byte: ");
-    // printBin(b);
-    // Serial.print(" in state: ");
-    // Serial.println(state);
     // No Op
 }
 
 void MainSetup()
 {
-    // Serial.print("Main Setup ");
     midiSerial.begin(31250); // MIDI Baud rate
     initializePin(MIDISTATUS);
     initializePin(AUXTIP);
@@ -120,8 +101,5 @@ void MainLoop()
         return;
     }
     uint8_t b = midiSerial.read();
-    // Serial.println("midi serial detected ");
-    // printBin(b);
-    //Serial.println("");
     MidiParserParse(&parser, b);
 }

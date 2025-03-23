@@ -25,7 +25,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
+ 
 //Configuration can be done in the "Main.cpp file"
 #include "Main.h"
 #include <Arduino.h>
