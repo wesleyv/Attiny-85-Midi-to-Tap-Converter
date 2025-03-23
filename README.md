@@ -17,4 +17,4 @@ There are a number of solder lugs on the Boss RC-5 that must be connected to the
 
 Midi Upgrade Circuit:
 
-![Midi and Power Lugs](/main/Reference%20Photos/Midi%20and%20Power%20Lugs.png)
+![Midi and Power Lugs](Reference%20Photos/Midi%20and%20Power%20Lugs.png)
