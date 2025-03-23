@@ -31,7 +31,7 @@ Unfortunately I was not able to get good photos of the solder lugs for the Tip/R
 
 Keep in mind that the stripboard layout shows the components and copper trace cuts together in one image, but in real life the copper strips and corresponding trace cuts will be on the back of the board, meaning that the trace cut pattern will be mirrored in relation to the diagram.
 
-![Midi and Power Lugs](Reference%20Photos/Attiny85%Midi%to%Tap%-%stripboard%layout.png)
+![Midi and Power Lugs](Reference Photos/Attiny85 Midi to Tap - stripboard layout.png.png)
 
 To access the code in the Arduino IDE, download the folder labeled "attinymidi" and keep all the files in a folder with that specific name. Open "attinymidi.ino" in the Arduino IDE and the the other files will be automatically referenced by the project. Use the IDE to set the midi channel of the upgrade circuit to match the midi channel that the RC-5 is configured to listen to.
 
