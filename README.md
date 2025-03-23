@@ -2,13 +2,14 @@ This project consists of code and a circuit for expanding the MIDI functionality
 The Boss RC-5 has certain basic features which have been excluded from its MIDI functionality, and can only be executed by physically pressing the buttons on the unit. This modification allows for any function assigned to the physical buttons to be executed via MIDI.
 
 The following youtube video contains detailed instructions for installation of the MIDI upgrade circuit:
-
+https://youtu.be/7GXlwmM-9fs
 The Microcontroller used in this project is an ATTINY85, which can be programmed using a hardware programmer or a repurposed Arduino Uno. There are no libraries needed, however there is a core that must be added to the board manager, which can be downloaded from the following URL:
 https://raw.githubusercontent.com/damellis/attiny/ide-1.6.x-boards-manager/package_damellis_attiny_index.json
 See my tutorial video for more detailed installation instructions.
 
 This is a good resource for using an UNO to program a Tiny85:
-https://www.youtube.com/watch?v=30rPt802n1k
+
+[![Video Thumbnail](Reference%20Photos/thumbnail.jpg)](https://www.youtube.com/watch?v=30rPt802n1k)
 
 This is an intermediate project, and not recommended for full-on beginners. 
 
