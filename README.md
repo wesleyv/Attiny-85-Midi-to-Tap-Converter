@@ -7,7 +7,7 @@ The Microcontroller used in this project is an ATTINY85, which can be programmed
 https://raw.githubusercontent.com/damellis/attiny/ide-1.6.x-boards-manager/package_damellis_attiny_index.json
 See my tutorial video for more detailed installation instructions:
 
-[![Video Thumbnail](Reference%20Photos/RC-5Videothumbnail.jpg)](https://youtu.be/7GXlwmM-9fs)
+[![Video Thumbnail](Reference%20Photos/RC-5Videothumbnail.png)](https://youtu.be/7GXlwmM-9fs)
 
 This is a good resource for using an UNO to program a Tiny85:
 
